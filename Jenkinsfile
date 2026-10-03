@@ -11,14 +11,21 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'cd Backend\\todo-summary-assistant && mvnw.cmd clean package'
+                bat 'cd Backend\\todo-summary-assistant && mvnw.cmd clean package -DskipTests'
             }
         }
-       stage('Test') {
-           steps {
-               bat 'cd Backend\\todo-summary-assistant && mvnw.cmd test'
-           }
-       }
-
+      stage('Test') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'mysql-db-creds',
+                usernameVariable: 'SPRING_DATASOURCE_USERNAME',
+                passwordVariable: 'SPRING_DATASOURCE_PASSWORD'
+            )
+        ]) {
+            bat 'cd Backend\\todo-summary-assistant && mvnw.cmd test'
+        }
+    }
+}
     }
 }
