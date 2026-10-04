@@ -22,6 +22,10 @@ pipeline {
                         credentialsId: 'mysql-db-creds',
                         usernameVariable: 'SPRING_DATASOURCE_USERNAME',
                         passwordVariable: 'SPRING_DATASOURCE_PASSWORD'
+                    ),
+                    string(
+                        credentialsId: 'cohere-api-key',
+                        variable: 'COHERE_API_KEY'
                     )
                 ]) {
                     bat '''
