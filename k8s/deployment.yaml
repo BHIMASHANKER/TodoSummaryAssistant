@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-summary-assistant
+  labels:
+    app: todo-summary-assistant
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-summary-assistant
+  template:
+    metadata:
+      labels:
+        app: todo-summary-assistant
+    spec:
+      containers:
+        - name: todo-summary-assistant
+          image: bhimah/todo-summary-assistant:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: COHERE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: COHERE_API_KEY
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: SLACK_WEBHOOK_URL
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /api/todos
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /api/todos
+              port: 8080
+            initialDelaySeconds: 150
+            periodSeconds: 20
+            failureThreshold: 6
+         
