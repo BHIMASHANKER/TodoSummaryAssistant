@@ -14,7 +14,7 @@ pipeline {
                 bat 'cd Backend\\todo-summary-assistant && mvnw.cmd clean package -DskipTests'
             }
         }
-      stage('Test') {
+     stage('Test') {
     steps {
         withCredentials([
             usernamePassword(
@@ -23,9 +23,20 @@ pipeline {
                 passwordVariable: 'SPRING_DATASOURCE_PASSWORD'
             )
         ]) {
-            bat 'cd Backend\\todo-summary-assistant && mvnw.cmd test'
+            bat '''
+                echo MySQL username: %SPRING_DATASOURCE_USERNAME%
+                if "%SPRING_DATASOURCE_PASSWORD%"=="" (
+                    echo MySQL password variable is EMPTY
+                    exit /b 1
+                ) else (
+                    echo MySQL password variable is SET
+                )
+
+                cd Backend\\todo-summary-assistant
+                mvnw.cmd test
+            '''
         }
     }
 }
-    }
+}
 }
